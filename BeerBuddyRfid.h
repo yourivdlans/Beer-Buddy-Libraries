@@ -36,7 +36,7 @@ public:
     
     BeerBuddyRfid(int red, int green);
     virtual ~BeerBuddyRfid();
-    char getCard();
+    char* getCard();
     bool compareString(char str1[], char str2[], int length);
     bool checkCard();
 private:
