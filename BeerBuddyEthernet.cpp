@@ -11,7 +11,8 @@ EthernetClient client;
 
 BeerBuddyEthernet::BeerBuddyEthernet(byte* mac, IPAddress ip, char* name) :
   startTime(0),
-  keepAliveInterval(120000)
+  keepAliveInterval(120000),
+  bufferLength(200)
 {
   macAddress = mac;
   serverIp = ip;
@@ -62,7 +63,9 @@ BeerBuddyEthernet::setOnline()
 {
   Serial.println("setOnline");
   
-  char url[] = "GET http://beer-buddy.nl/api/online HTTP/1.0";
+  //char url[] = "GET http://beer-buddy.nl/api/online HTTP/1.0";
+  
+  char* url = createUrl("/api/online");
   
   sendRequest(url);
 }
@@ -72,7 +75,15 @@ BeerBuddyEthernet::sendRFID(char rfid[])
 {
   Serial.println("sendRFID");
   
-  char url[] = "GET http://beer-buddy.nl/api/rfid/4000EE36E57D HTTP/1.0";
+  //char url[] = "GET http://beer-buddy.nl/api/rfid/4000EE36E57D HTTP/1.0";
+  
+  String path = String("/api/rfid/");
+  String parameter = String(rfid);
+  
+  String combined = String(path + parameter);
+  combined.toCharArray(buffer, bufferLength);
+  
+  char* url = createUrl(buffer);
   
   sendRequest(url);
 }
@@ -82,12 +93,29 @@ BeerBuddyEthernet::keepAlive()
 {
   Serial.println("keepAlive");
   
-  char url[] = "GET http://beer-buddy.nl/api HTTP/1.0";
+  //char url[] = "GET http://beer-buddy.nl/api HTTP/1.0";
+  
+  char* url = createUrl("/api");
   
   sendRequest(url);
 }
 
 // Private
+char*
+BeerBuddyEthernet::createUrl(char* path)
+{
+  String url1 = String("GET ");
+  String url2 = String(serverName);
+  String url3 = String(path);
+  String url4 = String(" HTTP/1.0");
+  
+  String url = String(url1 + url2 + url3 + url4);
+  
+  url.toCharArray(buffer, bufferLength);
+  
+  return buffer;
+}
+
 void
 BeerBuddyEthernet::sendRequest(char url[])
 {

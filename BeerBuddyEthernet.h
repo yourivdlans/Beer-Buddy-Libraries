@@ -31,6 +31,10 @@ public:
     void setOnline();
     void sendRFID(char rfid[]);
 private:
+    char buffer[200];
+    unsigned int bufferLength;
+    
+    char* createUrl(char path[]);
     void sendRequest(char url[]);
 };
 
