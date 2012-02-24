@@ -13,10 +13,6 @@ BeerBuddyEthernet::BeerBuddyEthernet(byte* mac, IPAddress ip, char* name) :
   startTime(0),
   keepAliveInterval(120000)
 {
-  //byte macAddress[] = { 0x90, 0xA2, 0xDA, 0x0D, 0x03, 0x05 };
-  //serverIp = {85,214,92,47}; // beer-buddy.nl
-  //char serverName[] = "http://beer-buddy.nl";
-  
   macAddress = mac;
   serverIp = ip;
   serverName = name;
@@ -34,9 +30,6 @@ void
 BeerBuddyEthernet::initialize()
 {
   Serial.println("Starting...");
-  
-  Serial.println(serverIp);
-  Serial.println(serverName);
   
   // start the Ethernet connection:
   Ethernet.begin(macAddress);
@@ -79,7 +72,7 @@ BeerBuddyEthernet::sendRFID(char rfid[])
 {
   Serial.println("sendRFID");
   
-  char url[] = "GET http://beer-buddy.nl/api/rfid/4B00DA184BC2 HTTP/1.0";
+  char url[] = "GET http://beer-buddy.nl/api/rfid/4000EE36E57D HTTP/1.0";
   
   sendRequest(url);
 }
@@ -89,18 +82,9 @@ BeerBuddyEthernet::keepAlive()
 {
   Serial.println("keepAlive");
   
-  if (client.connect(serverIp, 80))
-  {
-    client.println("GET http://beer-buddy.nl/api HTTP/1.0");
-    client.println();
-  } 
-  else
-  {
-    Serial.println("connection failed");
-    Serial.println();
-  }
+  char url[] = "GET http://beer-buddy.nl/api HTTP/1.0";
   
-  client.stop();
+  sendRequest(url);
 }
 
 // Private
