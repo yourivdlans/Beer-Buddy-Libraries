@@ -19,7 +19,6 @@ public:
     uint8_t* macAddress;
     IPAddress serverIp;
     char* serverName;
-    char url;
     long startTime;
     long keepAliveInterval;
     
@@ -32,10 +31,14 @@ public:
     void sendRFID(char rfid[]);
 private:
     char buffer[200];
+    char requestStream[200];
+    char* response;
+    char* url;
+    int y;
     unsigned int bufferLength;
     
     char* createUrl(char path[]);
-    void sendRequest(char url[]);
+    char* sendRequest(char url[]);
 };
 
 #endif	/* BEERBUDDYETHERNET_H */

@@ -12,7 +12,8 @@ EthernetClient client;
 BeerBuddyEthernet::BeerBuddyEthernet(byte* mac, IPAddress ip, char* name) :
   startTime(0),
   keepAliveInterval(120000),
-  bufferLength(200)
+  bufferLength(200),
+  y(0)
 {
   macAddress = mac;
   serverIp = ip;
@@ -65,7 +66,7 @@ BeerBuddyEthernet::setOnline()
   
   //char url[] = "GET http://beer-buddy.nl/api/online HTTP/1.0";
   
-  char* url = createUrl("/api/online");
+  url = createUrl("/api/online");
   
   sendRequest(url);
 }
@@ -83,9 +84,9 @@ BeerBuddyEthernet::sendRFID(char rfid[])
   String combined = String(path + parameter);
   combined.toCharArray(buffer, bufferLength);
   
-  char* url = createUrl(buffer);
+  url = createUrl(buffer);
   
-  sendRequest(url);
+  response = sendRequest(url);
 }
 
 void
@@ -95,7 +96,7 @@ BeerBuddyEthernet::keepAlive()
   
   //char url[] = "GET http://beer-buddy.nl/api HTTP/1.0";
   
-  char* url = createUrl("/api");
+  url = createUrl("/api");
   
   sendRequest(url);
 }
@@ -116,7 +117,7 @@ BeerBuddyEthernet::createUrl(char* path)
   return buffer;
 }
 
-void
+char*
 BeerBuddyEthernet::sendRequest(char url[])
 {
   Serial.println("sendRequest");
@@ -138,15 +139,31 @@ BeerBuddyEthernet::sendRequest(char url[])
   Serial.print("Server Response => ");
   
   while(client.connected() && !client.available()) delay(1); //waits for data
-  while(client.connected() || client.available()) { //connected or data available
+  while(client.connected() || client.available())
+  { //connected or data available
     char c = client.read(); //gets byte from ethernet buffer
-    Serial.print(c); //prints byte to serial monitor 
+    Serial.print(c); //prints byte to serial monitor
+    
+    if ( c == '{' || y != 0 )
+    {
+      requestStream[y] = c;
+      ++y;
+    }
   }
-
+  
+  requestStream[y] = '\0';
+  
+  y = 0;
+  
+  Serial.println();
+  Serial.println("RequestStream:");
+  Serial.println(requestStream);
   Serial.println();
   Serial.println("disconnecting.");
   Serial.println("==================");
   Serial.println();
   
   client.stop();
+  
+  return requestStream;
 }
