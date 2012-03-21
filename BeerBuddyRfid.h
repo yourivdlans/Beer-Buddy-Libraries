@@ -1,6 +1,6 @@
 /* 
  * File:   BeerBuddyRfid.h
- * Author: Youri van der Lans
+ * Author: Pim Vogels, Daan van der Zalm, Joshua Jansen, Youri van der Lans
  *
  * Created on February 21, 2012, 2:24 PM
  */
@@ -8,14 +8,8 @@
 #ifndef BEERBUDDYRFID_H
 #define	BEERBUDDYRFID_H
 
-/******************************************************************************
- * Includes
- ******************************************************************************/
 #include "../../hardware/arduino/cores/arduino/Arduino.h"
 
-/******************************************************************************
- * Definitions
- ******************************************************************************/
 #define receivePin 2
 #define transmitPin 3
 
@@ -32,17 +26,16 @@ public:
 
     long startTime;
     
-    bool result;
-    
     BeerBuddyRfid(int red, int green);
     virtual ~BeerBuddyRfid();
     char* getCard();
-    bool compareString(char str1[], char str2[], int length);
+    bool compareChar(char str1[], char str2[], int length);
+    bool setLed(int pin, int duration);
     bool checkCard();
 private:
+    bool result;
     char card[12];
-    
-    void setLed(int pin, int duration);
+    long runningFor;
 };
 
 #endif	/* BEERBUDDYRFID_H */

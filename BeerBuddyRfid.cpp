@@ -1,9 +1,6 @@
 /* 
  * File:   BeerBuddyRfid.cpp
- * Author: Youri van der Lans
- * 
- * Card1: 4000EE36E57D
- * Card2: 4500F6893903
+ * Author: Pim Vogels, Daan van der Zalm, Joshua Jansen, Youri van der Lans
  * 
  * Created on February 21, 2012, 2:24 PM
  */
@@ -41,37 +38,45 @@ BeerBuddyRfid::getCard()
 }
 
 bool
-BeerBuddyRfid::compareString(char str1[], char str2[], int length)
+BeerBuddyRfid::compareChar(char str1[], char str2[], int length)
 {
+  result = true;
+  
   for ( i=0; i<=length; i++ )
   {
     if ( str1[i] != str2[i] )
     {
-      return false;
+      result = false;
     }
   }
   
-  return true;
+  return result;
 }
 
-void
+bool
 BeerBuddyRfid::setLed(int pin, int duration)
 {
+  result = true;
+  
   if ( startTime == 0 ){
     digitalWrite(pin, HIGH);
     
     startTime = millis();
   }
   
-  long diff = (millis() - startTime);
+  runningFor = (millis() - startTime);
   
-  if ( startTime != 0 && diff >= duration )
+  if ( startTime != 0 && runningFor >= duration )
   {
     digitalWrite(pin, LOW);
     
     startTime = 0;
     enableLed = 0;
+    
+    result = false;
   }
+  
+  return result;
 }
 
 bool
@@ -111,28 +116,4 @@ BeerBuddyRfid::checkCard()
   }
   
   return result;
-  
-//  if ( y == 13 ){
-//    //Serial.println(i);
-//    if ( compareString("4000EE36E57D", card, 11) ){
-//      //Serial.println("Access granted!");
-//      
-//      result = true;
-//      
-//      enableLed = green;
-//    } else {
-//      //Serial.println("Access denied!");
-//      
-//      enableLed = red;
-//    }
-//    
-//    i = 0;
-//    y = 0;
-//  }
-//  
-//  if ( enableLed != 0 ){
-//    setLed(enableLed, 1000);
-//  }
-//  
-//  return result;
 }
