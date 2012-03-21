@@ -1,19 +1,23 @@
 /* 
  * File:   BeerBuddyEthernet.cpp
- * Author: Pim Vogels & Youri van der Lans
+ * Author: Pim Vogels, Daan van der Zalm, Joshua Jansen, Youri van der Lans
  * 
  * Created on February 22, 2012, 1:04 PM
  */
 
 #include "BeerBuddyEthernet.h"
+#include "BeerBuddyUser.h"
+
 
 EthernetClient client;
+BeerBuddyUser User;
 
 BeerBuddyEthernet::BeerBuddyEthernet(byte* mac, IPAddress ip, char* name) :
   startTime(0),
   keepAliveInterval(120000),
   bufferLength(200),
-  y(0)
+  y(0),
+  readStream(false)
 {
   macAddress = mac;
   serverIp = ip;
@@ -64,37 +68,41 @@ BeerBuddyEthernet::setOnline()
 {
   Serial.println("setOnline");
   
-  //char url[] = "GET http://beer-buddy.nl/api/online HTTP/1.0";
-  
   url = createUrl("/api/online");
   
   sendRequest(url);
 }
 
-void
+bool
 BeerBuddyEthernet::sendRFID(char rfid[])
 {
   Serial.println("sendRFID");
   
-  //char url[] = "GET http://beer-buddy.nl/api/rfid/4000EE36E57D HTTP/1.0";
-  
-  String path = String("/api/rfid/");
-  String parameter = String(rfid);
-  
-  String combined = String(path + parameter);
+  String combined = String(String("/api/rfid/") + String(rfid) + String("/raw"));
   combined.toCharArray(buffer, bufferLength);
   
   url = createUrl(buffer);
   
   response = sendRequest(url);
+  
+  Serial.println(response);
+  
+  User.parse(response);
+  
+  if ( User.isValid() )
+  {
+    return true;
+  }
+  else
+  {
+    return false;
+  }
 }
 
 void
 BeerBuddyEthernet::keepAlive()
 {
   Serial.println("keepAlive");
-  
-  //char url[] = "GET http://beer-buddy.nl/api HTTP/1.0";
   
   url = createUrl("/api");
   
@@ -136,32 +144,27 @@ BeerBuddyEthernet::sendRequest(char url[])
     Serial.println("connection failed");
   }
   
-  Serial.print("Server Response => ");
-  
   while(client.connected() && !client.available()) delay(1); //waits for data
   while(client.connected() || client.available())
   { //connected or data available
     char c = client.read(); //gets byte from ethernet buffer
-    Serial.print(c); //prints byte to serial monitor
     
-    if ( c == '{' || y != 0 )
+    if ( readStream )
     {
       requestStream[y] = c;
       ++y;
+    }
+    
+    if ( c == '#' )
+    {
+      readStream = true;
     }
   }
   
   requestStream[y] = '\0';
   
   y = 0;
-  
-  Serial.println();
-  Serial.println("RequestStream:");
-  Serial.println(requestStream);
-  Serial.println();
-  Serial.println("disconnecting.");
-  Serial.println("==================");
-  Serial.println();
+  readStream = false;
   
   client.stop();
   

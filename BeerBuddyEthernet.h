@@ -1,6 +1,6 @@
 /* 
  * File:   BeerBuddyEthernet.h
- * Author: Pim Vogels & Youri van der Lans
+ * Author: Pim Vogels, Daan van der Zalm, Joshua Jansen, Youri van der Lans
  *
  * Created on February 22, 2012, 1:04 PM
  */
@@ -28,14 +28,17 @@ public:
     void enableKeepAlive();
     void keepAlive();
     void setOnline();
-    void sendRFID(char rfid[]);
+    bool sendRFID(char rfid[]);
 private:
     char buffer[200];
     char requestStream[200];
     char* response;
+    char* result;
     char* url;
+    int i;
     int y;
     unsigned int bufferLength;
+    bool readStream;
     
     char* createUrl(char path[]);
     char* sendRequest(char url[]);
