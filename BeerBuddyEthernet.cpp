@@ -6,8 +6,6 @@
  */
 
 #include "BeerBuddyEthernet.h"
-#include "BeerBuddyUser.h"
-
 
 EthernetClient client;
 
