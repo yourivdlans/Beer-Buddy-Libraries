@@ -88,6 +88,18 @@ BeerBuddyEthernet::setOnline()
 }
 
 char*
+BeerBuddyEthernet::checkOnline()
+{
+  Serial.println("checkOnline");
+  
+  url = createUrl("/api/checkServerOnline/raw");
+  
+  response = sendRequest(url);
+  
+  return response;
+}
+
+char*
 BeerBuddyEthernet::sendRFID(char rfid[12])
 {
   Serial.println("sendRFID");

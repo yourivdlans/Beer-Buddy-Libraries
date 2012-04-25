@@ -30,6 +30,7 @@ public:
     void enableKeepAlive();
     void keepAlive();
     void setOnline();
+    char* checkOnline();
     char* sendRFID(char rfid[12]);
 private:
     char buffer[200];
