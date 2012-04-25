@@ -10,17 +10,17 @@
 
 
 EthernetClient client;
-BeerBuddyUser User;
 
-BeerBuddyEthernet::BeerBuddyEthernet(byte* mac, IPAddress ip, char* name) :
+BeerBuddyEthernet::BeerBuddyEthernet(byte* mac, IPAddress remote_ip, char* name) :
   startTime(0),
   keepAliveInterval(120000),
   bufferLength(200),
   y(0),
-  readStream(false)
+  readStream(false),
+  localIp(0, 0, 0, 0)
 {
   macAddress = mac;
-  serverIp = ip;
+  serverIp = remote_ip;
   serverName = name;
   
   startTime = millis();
@@ -33,12 +33,26 @@ BeerBuddyEthernet::~BeerBuddyEthernet()
 
 // Public
 void
+BeerBuddyEthernet::setLocalIp(IPAddress local_ip)
+{
+  localIp = local_ip;
+}
+
+void
 BeerBuddyEthernet::initialize()
 {
   Serial.println("Starting...");
   
   // start the Ethernet connection:
-  Ethernet.begin(macAddress);
+  if ( localIp != 0 )
+  {
+    Ethernet.begin(macAddress, localIp);
+  }
+  else
+  {
+    Ethernet.begin(macAddress);
+  }
+  
   // give the Ethernet shield a second to initialize:
   delay(1000);
   Serial.println("connecting...");
@@ -73,8 +87,8 @@ BeerBuddyEthernet::setOnline()
   sendRequest(url);
 }
 
-bool
-BeerBuddyEthernet::sendRFID(char rfid[])
+char*
+BeerBuddyEthernet::sendRFID(char rfid[12])
 {
   Serial.println("sendRFID");
   
@@ -85,18 +99,7 @@ BeerBuddyEthernet::sendRFID(char rfid[])
   
   response = sendRequest(url);
   
-  Serial.println(response);
-  
-  User.parse(response);
-  
-  if ( User.isValid() )
-  {
-    return true;
-  }
-  else
-  {
-    return false;
-  }
+  return response;
 }
 
 void

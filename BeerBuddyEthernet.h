@@ -18,17 +18,19 @@ class BeerBuddyEthernet
 public:
     uint8_t* macAddress;
     IPAddress serverIp;
+    IPAddress localIp;
     char* serverName;
     long startTime;
     long keepAliveInterval;
     
-    BeerBuddyEthernet(byte* mac, IPAddress ip, char* name);
+    BeerBuddyEthernet(byte* mac, IPAddress remote_ip, char* name);
     virtual ~BeerBuddyEthernet();
+    void setLocalIp(IPAddress local_ip);
     void initialize();
     void enableKeepAlive();
     void keepAlive();
     void setOnline();
-    bool sendRFID(char rfid[]);
+    char* sendRFID(char rfid[12]);
 private:
     char buffer[200];
     char requestStream[200];
